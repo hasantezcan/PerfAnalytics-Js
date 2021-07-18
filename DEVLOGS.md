@@ -296,3 +296,8 @@ I move subprojects to separate repositories created by mine. In the main reposit
 I created 3 repositories for API, Web Client, and JS package with my whole commit history.
 
 After that, every single sub-project will maintain from its own repository.
+
+
+### Serve PerfAnalytics-Js from github pages
+
+[How to use GitHub for Hosting CSS, Javascript and other Files](https://www.twistblogg.com/blog/use-github-for-hosting-files) 
