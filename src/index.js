@@ -57,7 +57,7 @@ async function logMetrics() {
 async function init() {
   const metrics = await collectMetrics();
 
-  fetch("http://localhost:6060/api/metrics", {
+  fetch("https://perfanalytics-api-ht.herokuapp.com/api/metrics", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -80,7 +80,7 @@ async function collectMetrics() {
   };
 }
 
-fetch("http://localhost:6060/api/healthcheck", {
+fetch("https://perfanalytics-api-ht.herokuapp.com/api/healthcheck", {
   method: "GET",
   headers: {
     "Content-Type": "application/json",
