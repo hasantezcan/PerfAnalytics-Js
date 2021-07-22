@@ -26,6 +26,9 @@ const getDOMLoad = (perf) => {
 };
 
 const getWindowLoad = (perf) => {
+  // console.log(`perf.loadEventStart`, perf.loadEventStart);
+  // console.log(`perf.loadEventEnd`, perf.loadEventEnd);
+
   const windowLoad = perf.loadEventStart - perf.loadEventEnd;
   return convertToSec(windowLoad);
 };
@@ -54,20 +57,19 @@ async function logMetrics() {
   console.table(metricsFiles);
 }
 
-async function init() {
+async function sendMetricWithFetch() {
   const metrics = await collectMetrics();
 
-  fetch("https://perfanalytics-api-ht.herokuapp.com/api/metrics", {
+  fetch("http://localhost:6060/api/metrics", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(metrics),
   }).then(console.log);
 }
 
 async function collectMetrics() {
   const perf = performance.getEntriesByType("navigation")[0];
+
+  getWindowLoad(perf);
 
   return {
     UserAgent: navigator.userAgent,
@@ -80,19 +82,39 @@ async function collectMetrics() {
   };
 }
 
-fetch("https://perfanalytics-api-ht.herokuapp.com/api/healthcheck", {
-  method: "GET",
-  headers: {
-    "Content-Type": "application/json",
-  },
-}).then(console.log);
+(function client() {
+  if (!navigator.sendBeacon) {
+    console.log("BEACON IS NOT EXIST!");
 
-window.addEventListener
-  ? window.addEventListener(
-      "load",
-      () => {
-        init(), logMetrics();
-      },
-      false
-    )
-  : window.attachEvent && window.attachEvent("onload", init);
+    window.addEventListener
+      ? window.addEventListener(
+          "load",
+          () => {
+            sendMetricWithFetch(), logMetrics();
+          },
+          false
+        )
+      : window.attachEvent &&
+        window.attachEvent("onload", sendMetricWithFetch());
+  }
+
+  console.log("BEACON EXIST!");
+  async function onUnload() {
+    if (onUnload._hasUnloaded) {
+      return;
+    }
+    onUnload._hasUnloaded = true;
+
+    logMetrics();
+
+    var metrics = await collectMetrics();
+
+    navigator.sendBeacon(
+      "http://localhost:6060/api/metrics",
+      JSON.stringify(metrics)
+    );
+  }
+
+  window.addEventListener("pagehide", onUnload);
+  window.addEventListener("unload", onUnload);
+})();
