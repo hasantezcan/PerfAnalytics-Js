@@ -301,3 +301,12 @@ After that, every single sub-project will maintain from its own repository.
 ### Serve PerfAnalytics-Js from github pages
 
 [How to use GitHub for Hosting CSS, Javascript and other Files](https://www.twistblogg.com/blog/use-github-for-hosting-files) 
+
+
+## Beacon API
+> https://developer.mozilla.org/en-US/docs/Web/API/Beacon_API
+
+- [Why we need to use sendbeacon?](https://developers.google.com/web/fundamentals/performance/navigation-and-resource-timing#:~:text=APIs%20like%20navigator.sendBeacon%20(or%20the%20more%20recent%20fetch%20keepalive%20flag)%20can%20send%20requests%20in%20a%20non-blocking%20way,%20which%20is%20ideal%20for%20RUM%20analytics%20or%20other%20types%20of%20requests%20that%20don't%20require%20waiting%20for%20a%20response.)
+- [Using the Beacon API](https://requestmetrics.com/building/using-the-beacon-api)
+
+- [Measuring the Critical Rendering Path](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/measure-crp?hl=en)

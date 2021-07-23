@@ -1,3 +1,5 @@
+const BASEURL = "http://localhost:6060";
+
 // Helper functions
 const convertToSec = (milliseconds) => {
   return milliseconds / 1000;
@@ -26,10 +28,8 @@ const getDOMLoad = (perf) => {
 };
 
 const getWindowLoad = (perf) => {
-  // console.log(`perf.loadEventStart`, perf.loadEventStart);
-  // console.log(`perf.loadEventEnd`, perf.loadEventEnd);
-
   const windowLoad = perf.loadEventStart - perf.loadEventEnd;
+
   return convertToSec(windowLoad);
 };
 
@@ -46,10 +46,9 @@ const getEntries = () => {
   });
 };
 
-// ----------------------------------------
+// ------------------------------
 
-async function logMetrics() {
-  const metrics = await collectMetrics();
+async function logMetrics(metrics) {
   const metricsFiles = metrics.Entries;
   await delete metrics.Entries;
 
@@ -57,19 +56,8 @@ async function logMetrics() {
   console.table(metricsFiles);
 }
 
-async function sendMetricWithFetch() {
-  const metrics = await collectMetrics();
-
-  fetch("http://localhost:6060/api/metrics", {
-    method: "POST",
-    body: JSON.stringify(metrics),
-  }).then(console.log);
-}
-
 async function collectMetrics() {
   const perf = performance.getEntriesByType("navigation")[0];
-
-  getWindowLoad(perf);
 
   return {
     UserAgent: navigator.userAgent,
@@ -82,39 +70,36 @@ async function collectMetrics() {
   };
 }
 
-(function client() {
-  if (!navigator.sendBeacon) {
-    console.log("BEACON IS NOT EXIST!");
-
-    window.addEventListener
-      ? window.addEventListener(
-          "load",
-          () => {
-            sendMetricWithFetch(), logMetrics();
-          },
-          false
-        )
-      : window.attachEvent &&
-        window.attachEvent("onload", sendMetricWithFetch());
-  }
-
-  console.log("BEACON EXIST!");
-  async function onUnload() {
-    if (onUnload._hasUnloaded) {
-      return;
-    }
-    onUnload._hasUnloaded = true;
-
-    logMetrics();
-
-    var metrics = await collectMetrics();
-
+function sendMetricWithBeacon() {
+  window.addEventListener("unload", () => {
     navigator.sendBeacon(
-      "http://localhost:6060/api/metrics",
-      JSON.stringify(metrics)
+      `${BASEURL}/api/metrics`,
+      JSON.stringify(window.metrics)
     );
-  }
+    logMetrics(window.metrics);
+  });
+}
 
-  window.addEventListener("pagehide", onUnload);
-  window.addEventListener("unload", onUnload);
+function sendMetricWithFetch() {
+  window.addEventListener("load", () => {
+    logMetrics(window.metrics);
+
+    fetch(`${BASEURL}/api/metrics`, {
+      method: "POST",
+      body: JSON.stringify(window.metrics),
+    }).then(console.log);
+  });
+}
+
+(async function init() {
+  window.addEventListener("load", async () => {
+    metrics = await collectMetrics();
+    window.metrics = metrics;
+  });
+
+  if (!navigator.sendBeacon) {
+    sendMetricWithFetch();
+  } else {
+    sendMetricWithBeacon();
+  }
 })();
