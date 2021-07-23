@@ -29,7 +29,6 @@ const getDOMLoad = (perf) => {
 
 const getWindowLoad = (perf) => {
   const windowLoad = perf.loadEventStart - perf.loadEventEnd;
-
   return convertToSec(windowLoad);
 };
 
