@@ -1,4 +1,4 @@
-const BASEURL = "http://localhost:6060";
+const BASEURL = "https://perfanalytics-api-ht.herokuapp.com";
 
 // Helper functions
 const convertToSec = (milliseconds) => {
